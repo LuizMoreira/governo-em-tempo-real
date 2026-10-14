@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cockpit de Gestão · Protótipo</title>
+<meta name="description" content="Protótipo interativo: briefing diário com IA, indicadores e alertas do governo em uma só visão.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Cockpit de Gestão · Protótipo">
+<meta property="og:description" content="Protótipo interativo: briefing diário com IA, indicadores e alertas do governo em uma só visão.">
+<meta property="og:url" content="https://luizmoreira.github.io/governo-em-tempo-real/cockpit/">
+<meta property="og:image" content="https://luizmoreira.github.io/governo-em-tempo-real/cockpit/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Titillium+Web:wght@400;600;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --page:#F5F5F5; --surface:#FFFFFF; --surface-2:#F3F6F4; --line:#E6E6E6; --axis:#BFBFBF;
+  --ink:#212529; --ink-2:#515151; --muted:#6C757D;
+  --accent:#007A43; --brand:#00A858; --brand-2:#006BB6; --yellow:#FFCC00;
+  --s1:#006BB6; --s2:#7F7F7F;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font-family:'Titillium Web',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.45}
+.wrap{max-width:1600px;margin:0 auto;padding:20px 24px 40px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .bar{width:6px;height:44px;background:linear-gradient(var(--brand) 0 70%,var(--yellow) 70% 100%);border-radius:3px}
+.stripe{height:6px;background:linear-gradient(90deg,var(--brand) 0 60%,var(--yellow) 60% 80%,var(--brand-2) 80% 100%)}
+.card h2,.brand h1,.kpi .val{font-family:'Montserrat',system-ui,sans-serif}
+.brand h1{margin:0;font-size:26px;font-weight:800;letter-spacing:.2px;color:var(--ink)}
+.brand p{margin:2px 0 0;color:var(--ink-2);font-size:14px}
+.live{display:flex;align-items:center;gap:10px;color:var(--ink-2);font-size:14px;font-variant-numeric:tabular-nums}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(12,163,12,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(12,163,12,.55)}70%{box-shadow:0 0 0 10px rgba(12,163,12,0)}100%{box-shadow:0 0 0 0 rgba(12,163,12,0)}}
+.notice{margin:16px 0 20px;padding:10px 14px;border:1px dashed var(--brand);border-radius:10px;color:var(--ink-2);font-size:13.5px;background:rgba(0,168,88,.06)}
+.notice b{color:var(--accent)}
+.grid{display:grid;gap:16px}
+.g-3-1{grid-template-columns:2fr 1fr}
+.g-2-1{grid-template-columns:2fr 1fr}
+.g-1-1{grid-template-columns:1fr 1fr}
+.kpis{grid-template-columns:repeat(6,1fr)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;min-width:0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card h2{margin:0 0 4px;font-size:16px;font-weight:700;letter-spacing:.2px}
+.card .sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent)}
+.row{display:flex;align-items:center;gap:8px}
+.section-gap{height:16px}
+
+/* briefing */
+.brief-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.ai-tag{font-size:12px;color:var(--ink-2);border:1px solid var(--axis);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.brief-item{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.brief-item:first-of-type{border-top:none}
+.brief-label{font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-2);padding-top:2px}
+.brief-text{font-size:16px;color:var(--ink);min-height:1.45em}
+.caret::after{content:"▍";color:var(--accent);animation:blink 1s steps(1) infinite;margin-left:1px}
+@keyframes blink{50%{opacity:0}}
+.decision{margin-top:10px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.decision p{margin:0;font-size:15px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;padding:7px 12px;cursor:pointer;border:1px solid var(--axis);background:transparent;color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+button:hover{filter:brightness(1.08)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.done{font-size:13.5px;color:var(--ink-2)}
+.done b{color:var(--ink)}
+
+/* status */
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink);padding:3px 9px 3px 7px;border-radius:999px;border:1px solid var(--axis);white-space:nowrap}
+.status svg{width:14px;height:14px;flex:none}
+.status.good svg{color:var(--good)} .status.warn svg{color:var(--warn)} .status.crit svg{color:var(--crit)}
+
+/* alerts */
+.alert{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:11px 0;border-top:1px solid var(--line);align-items:start}
+.alert:first-of-type{border-top:none}
+.alert .t{font-size:14.5px}
+.alert .m{font-size:13px;color:var(--muted)}
+
+/* kpi */
+.kpi .area{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-2)}
+.kpi .name{font-size:13.5px;color:var(--ink-2);margin:4px 0 8px;min-height:2.9em}
+.kpi .val{font-size:32px;font-weight:700;line-height:1.1}
+.kpi .val small{font-size:15px;font-weight:600;color:var(--ink-2);margin-left:3px}
+.kpi .meta{font-size:12.5px;color:var(--muted);margin:4px 0 10px}
+.kpi .src{font-size:11.5px;color:var(--muted);margin-top:8px}
+.spark{width:100%;height:56px;display:block;cursor:crosshair}
+
+/* charts */
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin:-4px 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:18px;height:0;border-top:2px solid}
+.sw.dash{border-top-style:dashed}
+.chart{width:100%;height:auto;display:block}
+.hbar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 52px;gap:10px;align-items:center;padding:6px 0;cursor:default}
+.hbar .lab{font-size:13.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar .track{height:14px;background:var(--surface-2);border-radius:4px;position:relative}
+.hbar .fill{height:100%;background:var(--s1);border-radius:0 4px 4px 0;width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.hbar .num{font-size:13.5px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.hbar:hover .fill{filter:brightness(1.18)}
+details{margin-top:10px;font-size:13px;color:var(--ink-2)}
+summary{cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.8px;text-transform:uppercase}
+td.n{font-variant-numeric:tabular-nums}
+tr.new td{animation:flash 2.2s ease-out}
+@keyframes flash{from{background:rgba(255,204,0,.28)}to{background:transparent}}
+
+/* feed */
+.feed{list-style:none;margin:0;padding:0;max-height:300px;overflow:hidden}
+.feed li{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.feed li:first-child{border-top:none}
+.feed time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+.feed .tag{font-weight:700;color:var(--ink-2)}
+.feed li.in{animation:slide .6s ease-out}
+@keyframes slide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+#tip{position:fixed;pointer-events:none;z-index:10;background:#212529;border:1px solid #212529;border-radius:8px;padding:8px 10px;font-size:13px;color:#FFFFFF;opacity:0;transition:opacity .12s;max-width:260px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+#tip .k{color:#C2C2C2}
+footer{margin-top:22px;color:var(--muted);font-size:12.5px;text-align:center}
+
+@media (max-width:1250px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:980px){.g-3-1,.g-2-1,.g-1-1{grid-template-columns:1fr}.brief-item{grid-template-columns:1fr;gap:4px}}
+@media (max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}.wrap{padding:16px 16px 64px}.brief-head{flex-wrap:wrap}table{display:block;overflow-x:auto}.back{font-size:13px!important;padding:8px 12px!important}}
+@media (max-width:480px){.kpis{grid-template-columns:1fr}.hbar{grid-template-columns:minmax(90px,130px) 1fr 44px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html#5" style="position:fixed;right:16px;bottom:16px;z-index:50;background:#14213D;color:#F7F6F1;font:600 14px/1 'Titillium Web',Arial,sans-serif;padding:10px 14px;border-radius:8px;text-decoration:none;opacity:.85">← Voltar à apresentação</a>
+<div class="stripe" aria-hidden="true"></div>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="bar"></div>
+    <div>
+      <h1>Cockpit de Gestão</h1>
+      <p>Visão integrada do governo · Protótipo conceitual</p>
+    </div>
+  </div>
+  <div class="live" aria-live="polite"><span class="dot" aria-hidden="true"></span><span>Ao vivo · atualizado às <b id="clock">--:--:--</b></span><span id="today"></span></div>
+</header>
+
+<div class="notice"><b>Protótipo com dados ilustrativos.</b> Os números abaixo são simulados para demonstrar o conceito e não representam dados reais do Governo do Distrito Federal. Estrutura inspirada no Eixo 5 do Plano de Governo 2027–2030.</div>
+
+<!-- Briefing + Alertas -->
+<section class="grid g-3-1">
+  <div class="card">
+    <div class="brief-head">
+      <div>
+        <div class="eyebrow">Briefing do dia</div>
+        <h2 style="margin-top:6px">O que a governadora precisa saber hoje</h2>
+      </div>
+      <span class="ai-tag">Gerado por IA · revisado por pessoas</span>
+    </div>
+    <div class="brief-item"><div class="brief-label">O que mudou</div><div class="brief-text" data-type="O tempo médio de espera na regulação da saúde caiu de 41 para 38 dias nesta semana. Ainda está acima da meta de 30 dias."></div></div>
+    <div class="brief-item"><div class="brief-label">Em risco</div><div class="brief-text" data-type="Só 64% das obras estão no prazo, abaixo da meta de 85%. Três obras acumulam atraso de mais de 60 dias."></div></div>
+    <div class="brief-item">
+      <div class="brief-label">Precisa da sua decisão</div>
+      <div>
+        <div class="brief-text" data-type="Duas decisões aguardam encaminhamento. A recomendação e as alternativas estão anexadas a cada uma."></div>
+        <div id="decisions"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Alertas de risco</div>
+    <h2 style="margin-top:6px">Antes de virar crise</h2>
+    <p class="sub">Ordenados por gravidade</p>
+    <div id="alerts"></div>
+  </div>
+</section>
+
+<div class="section-gap"></div>
+
+<!-- KPIs -->
+<section class="grid kpis" id="kpis" aria-label="Indicadores por frente do plano"></section>
+
+<div class="section-gap"></div>
+
+<!-- Orçamento + Eixos -->
+<section class="grid g-2-1">
+  <div class="card">
+    <div class="eyebrow">Orçamento</div>
+    <h2 style="margin-top:6px">Execução do investimento acumulada no ano</h2>
+    <p class="sub">% do orçamento anual de investimento · planejado × realizado</p>
+    <div class="legend"><span><i class="sw" style="border-color:var(--s1)"></i>Realizado</span><span><i class="sw dash" style="border-color:var(--s2)"></i>Planejado</span></div>
+    <svg id="budget" class="chart" viewBox="0 0 820 300" role="img" aria-label="Linha de execução orçamentária: realizado abaixo do planejado em todos os meses, terminando outubro em 71% contra 78% planejado"></svg>
+    <details><summary>Ver como tabela</summary><table id="budgetTable"></table></details>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Plano de Governo</div>
+    <h2 style="margin-top:6px">Ações no prazo, por eixo</h2>
+    <p class="sub">% das ações de cada eixo em execução dentro do cronograma</p>
+    <div id="axes"></div>
+  </div>
+</section>
+
+<div class="section-gap"></div>
+
+<!-- RAs + Feed -->
+<section class="grid g-1-1">
+  <div class="card">
+    <div class="eyebrow">Governo de proximidade</div>
+    <h2 style="margin-top:6px">Demandas abertas nas Regiões Administrativas</h2>
+    <p class="sub">Solicitações da população ainda sem resposta · 6 RAs com maior volume</p>
+    <div id="ras"></div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Ao vivo</div>
+    <h2 style="margin-top:6px">O que está acontecendo agora</h2>
+    <p class="sub">Eventos lidos dos sistemas de cada área</p>
+    <ul class="feed" id="feed" aria-live="polite"></ul>
+  </div>
+</section>
+
+<div class="section-gap"></div>
+
+<!-- Histórico -->
+<section class="card">
+  <div class="eyebrow">Transparência</div>
+  <h2 style="margin-top:6px">Histórico de decisões</h2>
+  <p class="sub">O que foi decidido, por quê e com quais alternativas. Decisões tomadas neste painel aparecem aqui na hora.</p>
+  <div style="overflow-x:auto">
+  <table>
+    <thead><tr><th style="width:110px">Quando</th><th>Decisão</th><th>Por quê</th><th>Alternativas consideradas</th><th style="width:140px">Situação</th></tr></thead>
+    <tbody id="history"></tbody>
+  </table>
+  </div>
+</section>
+
+<footer>Protótipo conceitual elaborado por Luiz Fernando Moreira · Dados ilustrativos · A IA organiza e alerta; a decisão é sempre humana.</footer>
+</div>
+
+<div id="tip" role="tooltip"></div>
+
+<script>
+(() => {
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = (n, d=0) => n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs={}, parent) => { const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; };
+const tip = document.getElementById('tip');
+const showTip = (html, x, y) => { tip.innerHTML = html; tip.style.opacity = 1; const w = tip.offsetWidth, h = tip.offsetHeight; let L = x + 14, T = y - h - 12; if (L + w > innerWidth - 8) L = x - w - 14; if (T < 8) T = y + 16; tip.style.left = L + 'px'; tip.style.top = T + 'px'; };
+const hideTip = () => tip.style.opacity = 0;
+
+const ICON = {
+  good:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.6 8.3l2.2 2.2 4.6-4.8" stroke="#0b1322" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  warn:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.2l7 13H1z" fill="currentColor"/><path d="M8 6v3.6" stroke="#0b1322" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.8" r="1" fill="#0b1322"/></svg>',
+  crit:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="3" fill="currentColor"/><path d="M5 5l6 6M11 5l-6 6" stroke="#0b1322" stroke-width="1.8" stroke-linecap="round"/></svg>'
+};
+const LABEL = {good:'No prazo', warn:'Atenção', crit:'Risco'};
+const status = s => `<span class="status ${s}">${ICON[s]}${LABEL[s]}</span>`;
+
+/* clock */
+const clock = document.getElementById('clock');
+const tick = () => clock.textContent = new Date().toLocaleTimeString('pt-BR');
+tick(); setInterval(tick, 1000);
+document.getElementById('today').textContent = '· ' + new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+
+/* briefing typing */
+const typed = [...document.querySelectorAll('[data-type]')];
+const typeAll = async () => {
+  for (const node of typed) {
+    const text = node.dataset.type;
+    if (reduce) { node.textContent = text; continue; }
+    node.classList.add('caret');
+    for (let i = 1; i <= text.length; i++) { node.textContent = text.slice(0, i); await new Promise(r => setTimeout(r, 14)); }
+    node.classList.remove('caret');
+    await new Promise(r => setTimeout(r, 250));
+  }
+  renderDecisions();
+};
+
+/* decisions */
+const history = document.getElementById('history');
+const DECISIONS = [
+  {id:'d1', q:'Remanejar equipes de manutenção para as 3 obras com maior atraso?', why:'Obras no prazo em 64%, abaixo da meta de 85%', alt:'Contratar reforço emergencial; renegociar cronograma com as construtoras'},
+  {id:'d2', q:'Reforçar a frota nas 2 linhas de ônibus com pontualidade abaixo de 70%?', why:'Pontualidade geral em 81%, meta de 90%', alt:'Ajustar horários; criar faixa exclusiva temporária'}
+];
+const addHistory = (when, what, why, alt, st, isNew) => {
+  const tr = document.createElement('tr'); if (isNew) tr.className = 'new';
+  tr.innerHTML = `<td class="n">${when}</td><td>${what}</td><td>${why}</td><td>${alt}</td><td>${st}</td>`;
+  history.prepend(tr);
+};
+const renderDecisions = () => {
+  const box = document.getElementById('decisions');
+  DECISIONS.forEach(d => {
+    const div = document.createElement('div'); div.className = 'decision';
+    div.innerHTML = `<p>${d.q}</p><div class="btns"><button class="primary" data-a="Aprovada">Aprovar</button><button data-a="Pedido de detalhes">Pedir detalhes</button><button data-a="Adiada">Adiar</button></div>`;
+    div.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      const a = b.dataset.a, now = new Date();
+      const when = now.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) + ' ' + now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const st = a === 'Aprovada' ? status('good').replace('No prazo','Aprovada') : `<span class="status warn">${ICON.warn}${a}</span>`;
+      addHistory(when, d.q.replace(/\?$/,''), d.why, d.alt, st, true);
+      div.innerHTML = `<p class="done"><b>${a}</b> · registrada no histórico de decisões às ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</p>`;
+      pushFeed('Gabinete', `Decisão registrada: ${a.toLowerCase()} — ${d.q.replace(/\?$/,'').toLowerCase()}`);
+    }));
+    box.appendChild(div);
+  });
+};
+[
+  ['02/10', 'Ampliar mutirão de consultas de ortopedia em 2 regiões', 'Fila acima de 90 dias nessas regiões', 'Credenciar clínicas; telemedicina para triagem', status('good').replace('No prazo','Em execução')],
+  ['25/09', 'Antecipar troca para LED em 4 RAs com mais demandas de iluminação', 'Iluminação é a 1ª causa de demanda nessas RAs', 'Manter cronograma original', status('good').replace('No prazo','Concluída')],
+  ['18/09', 'Integrar dados do CIOB ao cockpit antes das demais áreas', 'Maior volume de eventos em tempo real', 'Começar pela saúde; começar pela mobilidade', status('good').replace('No prazo','Concluída')]
+].reverse().forEach(r => addHistory(...r, false));
+
+/* alerts */
+const ALERTS = [
+  ['crit','Obras · 3 obras com atraso acima de 60 dias','Impacto previsto: entrega fora do ano'],
+  ['warn','Saúde · fila de ortopedia acima de 90 dias em 2 regiões','Tendência de queda, ainda acima da meta'],
+  ['warn','Mobilidade · pontualidade em 81% (meta 90%)','Concentrado em 2 linhas'],
+  ['warn','Orçamento · execução 7 pontos abaixo do planejado','Risco de não executar o investimento anual']
+];
+document.getElementById('alerts').innerHTML = ALERTS.map(([s,t,m]) => `<div class="alert">${status(s)}<div><div class="t">${t}</div><div class="m">${m}</div></div></div>`).join('');
+
+/* KPIs */
+const WEEKS = ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12'];
+const KPIS = [
+  {area:'Saúde', name:'Tempo médio de espera na regulação', val:38, unit:'dias', meta:30, metaTxt:'Meta: até 30 dias', st:'warn', src:'IntegraSaúde (simulado)', series:[52,51,49,50,47,46,45,44,43,42,41,38], d:0, lowerBetter:true},
+  {area:'Segurança', name:'Tempo médio de resposta a ocorrências', val:9.2, unit:'min', meta:10, metaTxt:'Meta: até 10 min', st:'good', src:'CIOB (simulado)', series:[11.4,11.1,10.8,10.9,10.5,10.2,10.1,9.9,9.7,9.6,9.4,9.2], d:1, lowerBetter:true},
+  {area:'Mobilidade', name:'Pontualidade das linhas de ônibus', val:81, unit:'%', meta:90, metaTxt:'Meta: 90%', st:'warn', src:'Monitoramento em tempo real (simulado)', series:[84,83,83,82,84,83,82,81,82,80,81,81], d:0},
+  {area:'Obras', name:'Obras com entrega no prazo', val:64, unit:'%', meta:85, metaTxt:'Meta: 85%', st:'crit', src:'Painel de obras (simulado)', series:[72,71,71,70,69,69,68,67,66,66,65,64], d:0},
+  {area:'Orçamento', name:'Execução do investimento no ano', val:71, unit:'%', meta:78, metaTxt:'Planejado até agora: 78%', st:'warn', src:'Execução orçamentária (simulado)', series:[50,52,54,56,58,60,62,64,66,68,70,71], d:0},
+  {area:'Atendimento', name:'Demandas das RAs resolvidas em até 15 dias', val:88, unit:'%', meta:85, metaTxt:'Meta: 85%', st:'good', src:'Administração Regional Digital 24h (simulado)', series:[79,80,81,82,82,84,85,85,86,87,87,88], d:0}
+];
+const kbox = document.getElementById('kpis');
+KPIS.forEach((k, i) => {
+  const c = document.createElement('div'); c.className = 'card kpi';
+  c.innerHTML = `<div class="row" style="justify-content:space-between"><span class="area">${k.area}</span>${status(k.st)}</div>
+    <div class="name">${k.name}</div>
+    <div class="val"><span data-count="${k.val}" data-d="${k.d}">${fmt(k.val,k.d)}</span><small>${k.unit}</small></div>
+    <div class="meta">${k.metaTxt}</div>
+    <svg class="spark" viewBox="0 0 240 56" preserveAspectRatio="none" role="img" aria-label="Tendência de 12 semanas de ${k.name}: de ${fmt(k.series[0],k.d)} para ${fmt(k.series[11],k.d)} ${k.unit}"></svg>
+    <div class="src">Fonte: ${k.src} · últimas 12 semanas</div>`;
+  kbox.appendChild(c);
+  drawSpark(c.querySelector('svg'), k);
+});
+function drawSpark(svg, k){
+  const W=240,H=56,p=6, all=[...k.series,k.meta], min=Math.min(...all), max=Math.max(...all), span=(max-min)||1;
+  const x=i=>p+i*(W-2*p)/(k.series.length-1), y=v=>H-p-(v-min)/span*(H-2*p);
+  el('line',{x1:p,x2:W-p,y1:y(k.meta),y2:y(k.meta),stroke:'#6C757D','stroke-width':1,'stroke-dasharray':'3 3','vector-effect':'non-scaling-stroke'},svg);
+  el('path',{d:k.series.map((v,i)=>(i?'L':'M')+x(i)+' '+y(v)).join(' '),fill:'none',stroke:'#006BB6','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round','vector-effect':'non-scaling-stroke'},svg);
+  const cross=el('line',{y1:0,y2:H,stroke:'#7F7F7F','stroke-width':1,'vector-effect':'non-scaling-stroke',opacity:0},svg);
+  svg.addEventListener('mousemove',e=>{
+    const r=svg.getBoundingClientRect(), rel=(e.clientX-r.left)/r.width*W;
+    const i=Math.max(0,Math.min(k.series.length-1,Math.round((rel-p)/((W-2*p)/(k.series.length-1)))));
+    cross.setAttribute('x1',x(i)); cross.setAttribute('x2',x(i)); cross.setAttribute('opacity',1);
+    showTip(`<div class="k">${k.area} · semana ${i+1}</div><b>${fmt(k.series[i],k.d)} ${k.unit}</b> <span class="k">· meta ${fmt(k.meta,k.d)}</span>`, e.clientX, e.clientY);
+  });
+  svg.addEventListener('mouseleave',()=>{cross.setAttribute('opacity',0);hideTip();});
+}
+if (!reduce) document.querySelectorAll('[data-count]').forEach(n => {
+  const to=+n.dataset.count, d=+n.dataset.d, t0=performance.now(), dur=1100;
+  const step=t=>{const f=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-f,3); n.textContent=fmt(to*e,d); if(f<1) requestAnimationFrame(step);};
+  requestAnimationFrame(step);
+});
+
+/* budget line chart */
+const MONTHS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out'];
+const PLAN=[8,16,25,33,41,50,58,66,73,78], REAL=[6,12,19,27,35,43,50,58,65,71];
+(function(){
+  const svg=document.getElementById('budget'), W=820,H=300,m={l:44,r:110,t:14,b:34};
+  const x=i=>m.l+i*(W-m.l-m.r)/(MONTHS.length-1), y=v=>H-m.b-v/100*(H-m.t-m.b);
+  [0,25,50,75,100].forEach(v=>{
+    el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:v?'#E6E6E6':'#BFBFBF','stroke-width':1},svg);
+    const t=el('text',{x:m.l-10,y:y(v)+4,'text-anchor':'end',fill:'#6C757D','font-size':12},svg); t.textContent=v+'%';
+  });
+  MONTHS.forEach((mo,i)=>{const t=el('text',{x:x(i),y:H-10,'text-anchor':'middle',fill:'#6C757D','font-size':12},svg); t.textContent=mo;});
+  const path=(arr)=>arr.map((v,i)=>(i?'L':'M')+x(i)+' '+y(v)).join(' ');
+  el('path',{d:path(PLAN),fill:'none',stroke:'#7F7F7F','stroke-width':2,'stroke-dasharray':'6 5'},svg);
+  const real=el('path',{d:path(REAL),fill:'none',stroke:'#006BB6','stroke-width':2.5,'stroke-linejoin':'round','stroke-linecap':'round'},svg);
+  if(!reduce){const L=real.getTotalLength(); real.style.strokeDasharray=L; real.style.strokeDashoffset=L; real.getBoundingClientRect(); real.style.transition='stroke-dashoffset 1.6s ease-out'; requestAnimationFrame(()=>real.style.strokeDashoffset=0);}
+  const last=MONTHS.length-1;
+  el('circle',{cx:x(last),cy:y(REAL[last]),r:5,fill:'#006BB6',stroke:'#FFFFFF','stroke-width':2},svg);
+  el('circle',{cx:x(last),cy:y(PLAN[last]),r:5,fill:'#7F7F7F',stroke:'#FFFFFF','stroke-width':2},svg);
+  const lab=(v,txt,dy)=>{const t=el('text',{x:x(last)+12,y:y(v)+dy,fill:'#212529','font-size':13,'font-weight':600},svg); t.textContent=txt;};
+  lab(PLAN[last],'Planejado 78%',-2); lab(REAL[last],'Realizado 71%',14);
+  const cross=el('line',{y1:m.t,y2:H-m.b,stroke:'#7F7F7F','stroke-width':1,opacity:0},svg);
+  const d1=el('circle',{r:5,fill:'#006BB6',stroke:'#FFFFFF','stroke-width':2,opacity:0},svg);
+  const d2=el('circle',{r:5,fill:'#7F7F7F',stroke:'#FFFFFF','stroke-width':2,opacity:0},svg);
+  const hit=el('rect',{x:m.l-10,y:m.t,width:W-m.l-m.r+20,height:H-m.t-m.b,fill:'transparent'},svg);
+  hit.addEventListener('mousemove',e=>{
+    const r=svg.getBoundingClientRect(), rel=(e.clientX-r.left)/r.width*W;
+    const i=Math.max(0,Math.min(last,Math.round((rel-m.l)/((W-m.l-m.r)/last))));
+    [cross].forEach(c=>{c.setAttribute('x1',x(i));c.setAttribute('x2',x(i));c.setAttribute('opacity',1);});
+    d1.setAttribute('cx',x(i));d1.setAttribute('cy',y(REAL[i]));d1.setAttribute('opacity',1);
+    d2.setAttribute('cx',x(i));d2.setAttribute('cy',y(PLAN[i]));d2.setAttribute('opacity',1);
+    showTip(`<div class="k">Acumulado até ${MONTHS[i]}</div>Realizado <b>${REAL[i]}%</b><br>Planejado <b>${PLAN[i]}%</b><br><span class="k">Diferença: ${PLAN[i]-REAL[i]} pontos</span>`,e.clientX,e.clientY);
+  });
+  hit.addEventListener('mouseleave',()=>{[cross,d1,d2].forEach(c=>c.setAttribute('opacity',0));hideTip();});
+  document.getElementById('budgetTable').innerHTML='<tr><th>Mês</th><th>Planejado</th><th>Realizado</th><th>Diferença</th></tr>'+MONTHS.map((mo,i)=>`<tr><td>${mo}</td><td class="n">${PLAN[i]}%</td><td class="n">${REAL[i]}%</td><td class="n">${PLAN[i]-REAL[i]} p.p.</td></tr>`).join('');
+})();
+
+/* horizontal bars */
+function hbars(id, rows, suffix, max){
+  const box=document.getElementById(id);
+  box.innerHTML=rows.map(([l,v,note])=>`<div class="hbar" data-l="${l}" data-v="${v}" data-n="${note||''}"><div class="lab" title="${l}">${l}</div><div class="track"><div class="fill" data-w="${v/max*100}"></div></div><div class="num">${fmt(v)}${suffix}</div></div>`).join('');
+  requestAnimationFrame(()=>box.querySelectorAll('.fill').forEach(f=>f.style.width=f.dataset.w+'%'));
+  box.querySelectorAll('.hbar').forEach(b=>{
+    b.addEventListener('mousemove',e=>showTip(`<div class="k">${b.dataset.l}</div><b>${fmt(+b.dataset.v)}${suffix}</b>${b.dataset.n?`<br><span class="k">${b.dataset.n}</span>`:''}`,e.clientX,e.clientY));
+    b.addEventListener('mouseleave',hideTip);
+  });
+}
+hbars('axes',[
+  ['1 · Cuidado, dignidade e inclusão social',82,'Saúde e educação puxam o eixo'],
+  ['2 · Moradia, infraestrutura e mobilidade',61,'Obras atrasadas pesam no resultado'],
+  ['3 · Desenvolvimento econômico e trabalho',77,''],
+  ['4 · BRB, desenvolvimento e fomento',74,''],
+  ['5 · Gestão, governança e transformação digital',86,'Cockpit integrado em 3 áreas']
+],'%',100);
+hbars('ras',[
+  ['Ceilândia',418,'Iluminação é a principal demanda'],
+  ['Samambaia',305,'Tapa-buraco e iluminação'],
+  ['Taguatinga',262,''],
+  ['Planaltina',241,'Transporte e saúde'],
+  ['Recanto das Emas',198,''],
+  ['Gama',176,'']
+],'',420);
+
+/* live feed */
+const feed=document.getElementById('feed');
+const pad=n=>String(n).padStart(2,'0');
+function pushFeed(tag, msg, animate=true){
+  const d=new Date(), li=document.createElement('li'); if(animate) li.className='in';
+  li.innerHTML=`<time>${pad(d.getHours())}:${pad(d.getMinutes())}</time><div><span class="tag">${tag}</span> · ${msg}</div>`;
+  feed.prepend(li); while(feed.children.length>7) feed.lastElementChild.remove();
+}
+window.pushFeed = pushFeed;
+const EVENTS=[
+  ['Saúde','Fila de ortopedia reduziu 6% na semana em Ceilândia'],
+  ['Segurança','Ocorrência de trânsito na EPTG normalizada em 18 min'],
+  ['Mobilidade','Linha com atraso médio de 12 min no horário de pico'],
+  ['Obras','Obra de drenagem atingiu 80% de execução'],
+  ['Atendimento','42 novas demandas de iluminação abertas em Samambaia'],
+  ['Orçamento','Novo empenho de investimento registrado na saúde'],
+  ['Segurança','Operação integrada concluída sem intercorrências'],
+  ['Saúde','Tempo de espera na regulação atualizado: 38 dias'],
+  ['Mobilidade','Pontualidade voltou a 84% na faixa das 14h']
+];
+EVENTS.slice(0,4).reverse().forEach(e=>pushFeed(e[0],e[1],false));
+let ei=4;
+setInterval(()=>{ pushFeed(EVENTS[ei%EVENTS.length][0], EVENTS[ei%EVENTS.length][1]); ei++; }, 7000);
+
+typeAll();
+})();
+</script>
+</body>
+</html>

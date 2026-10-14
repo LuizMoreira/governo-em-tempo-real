@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Governo em Tempo Real</title>
+<meta name="description" content="Uma proposta alinhada ao Plano de Governo 2027–2030: cockpit de gestão com IA para decidir com informação atual.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Governo em tempo real · Luiz Fernando Moreira">
+<meta property="og:description" content="Uma proposta alinhada ao Plano de Governo 2027–2030: cockpit de gestão com IA para decidir com informação atual.">
+<meta property="og:url" content="https://luizmoreira.github.io/governo-em-tempo-real/">
+<meta property="og:image" content="https://luizmoreira.github.io/governo-em-tempo-real/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#0B1324;overflow:hidden}
+#view{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+#rot{position:fixed;left:16px;right:16px;top:16px;display:none;align-items:center;gap:14px;background:#F7F6F1;color:#14213D;font:600 15px/1.35 'Public Sans',Arial,sans-serif;padding:14px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:5}
+#rot svg{width:32px;height:32px;flex-shrink:0;color:#8A5410}
+#rot button{margin-left:auto;font:700 14px 'Public Sans',Arial,sans-serif;background:#14213D;color:#F7F6F1;border:0;border-radius:8px;padding:8px 12px}
+#hint{position:fixed;left:0;right:0;bottom:18px;text-align:center;color:#9AA6BA;font:14px 'Public Sans',Arial,sans-serif;display:none;pointer-events:none}
+@media (orientation:portrait) and (max-width:820px){#rot.show{display:flex}}
+@media (pointer:coarse){#hint.show{display:block}}
+section{position:absolute;inset:0;width:1920px;height:1080px;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s .45s;overflow:hidden}
+section.on{opacity:1;visibility:visible;transition:opacity .45s ease}
+a{color:inherit;text-decoration:none}
+table{border-collapse:collapse;width:100%}
+th,td{padding:22px 32px;text-align:left;vertical-align:top;border-bottom:1px solid #E2DED3;line-height:1.4}
+th{font-weight:700}
+#bar{position:fixed;left:0;bottom:0;height:4px;background:#E0A23B;transition:width .3s}
+#notes{position:fixed;left:16px;right:16px;bottom:16px;max-width:900px;margin:0 auto;background:rgba(11,19,36,.94);color:#F7F6F1;font:18px/1.45 'Public Sans',Arial,sans-serif;padding:16px 20px;border-radius:10px;display:none}
+#notes.on{display:block}
+@media (prefers-reduced-motion:reduce){section,section.on{transition:none}}
+</style></head><body>
+<div id="view"><div id="stage">
+<section id="cover" data-transition="fade" style="background:#14213D;color:#F7F6F1;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#E0A23B"></div>
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#E0A23B">Proposta alinhada ao Plano de Governo 2027–2030</p>
+<div style="display:flex;flex-direction:column;gap:40px">
+<h1 style="font-family:'Libre Baskerville', Georgia, serif;font-size:120px;font-weight:700;line-height:1.1;color:#F7F6F1">Governo em<br>tempo real</h1>
+<p style="font-size:44px;line-height:1.3;color:#C9D1DE;width:1300px">Uma visão única e contínua do GDF, para decidir com informação atual</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-size:36px;font-weight:700;color:#F7F6F1">Luiz Fernando Moreira</p>
+<p style="font-size:28px;color:#C9D1DE">Arquiteto de Soluções · 20+ anos em tecnologia e transformação digital</p>
+</div>
+
+</section>
+
+<section id="desafio" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:64px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">O desafio</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D;width:1500px">Quem governa precisa saber o que está acontecendo, a tempo de agir</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFFFFF;padding:48px;border:1px solid #E2DED3;border-radius:16px">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:72px;font-weight:700;color:#8A5410">01</p>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Informação em silos</h3>
+<p style="font-size:30px;line-height:1.4">Dezenas de secretarias, cada uma com sistemas, indicadores e ritmo próprios.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFFFFF;padding:48px;border:1px solid #E2DED3;border-radius:16px">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:72px;font-weight:700;color:#8A5410">02</p>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Chega atrasada</h3>
+<p style="font-size:30px;line-height:1.4">Relatório, planilha e reunião: quando o dado chega ao topo, já está desatualizado.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFFFFF;padding:48px;border:1px solid #E2DED3;border-radius:16px">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:72px;font-weight:700;color:#8A5410">03</p>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Ninguém lê tudo</h3>
+<p style="font-size:30px;line-height:1.4">O dado existe, mas está espalhado e não há como ler tudo a tempo de decidir.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 2</p>
+
+</section>
+
+<section id="ideia" data-transition="fade" style="background:#14213D;color:#C9D1DE;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#E0A23B">A ideia</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:72px;font-weight:700;line-height:1.15;color:#F7F6F1">O Cockpit de Gestão</h2>
+<p style="font-size:40px;line-height:1.3;color:#F7F6F1;width:1500px">Uma visão única e contínua do governo, sem trocar nenhum sistema</p>
+</div>
+<div style="display:flex;align-items:center;gap:24px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#1F2F52;padding:40px;border-radius:16px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#E0A23B;width:56px;height:56px"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+<h3 style="font-size:34px;font-weight:700;color:#F7F6F1">Conecta o que já existe</h3>
+<p style="font-size:28px;line-height:1.4">Indicadores de cada secretaria, sem substituir sistemas nem parar a operação</p>
+</div>
+<svg viewBox="0 0 64 32" style="flex-shrink:0;width:64px;height:32px"><path d="M0 12h44V2l20 14-20 14V20H0z" fill="#E0A23B"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#1F2F52;padding:40px;border-radius:16px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#E0A23B;width:56px;height:56px"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
+<h3 style="font-size:34px;font-weight:700;color:#F7F6F1">IA lê tudo, todo dia</h3>
+<p style="font-size:28px;line-height:1.4">Transforma o volume de dados em informação de decisão</p>
+</div>
+<svg viewBox="0 0 64 32" style="flex-shrink:0;width:64px;height:32px"><path d="M0 12h44V2l20 14-20 14V20H0z" fill="#E0A23B"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#1F2F52;padding:40px;border-radius:16px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#E0A23B;width:56px;height:56px"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+<h3 style="font-size:34px;font-weight:700;color:#F7F6F1">Um só lugar</h3>
+<p style="font-size:28px;line-height:1.4">A governadora acompanha o governo inteiro em uma única visão</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9AA6BA">Governo em tempo real · 3</p>
+
+</section>
+
+<section id="entrega" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">O que a governadora recebe</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D">Menos reunião de status, mais tempo para decidir</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;flex:1">
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Briefing diário automático</h3>
+<p style="font-size:28px;line-height:1.4">O que mudou, o que está em risco e o que precisa da decisão dela</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Alerta antes da crise</h3>
+<p style="font-size:28px;line-height:1.4">Fila da saúde crescendo, obra atrasando, gasto saindo da curva</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M6.5 17A2.5 2.5 0 0 0 4 19.5 2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Histórico das decisões</h3>
+<p style="font-size:28px;line-height:1.4">O que foi decidido, por quê e com que alternativas, sempre acessível</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">IA com supervisão humana</h3>
+<p style="font-size:28px;line-height:1.4">A IA organiza e alerta; a decisão é sempre dela. LGPD e segurança desde o primeiro dia</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 4</p>
+
+</section>
+
+<section id="demo" data-transition="fade" style="background:#14213D;color:#C9D1DE;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:20px;width:560px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#E0A23B">Veja na prática</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:60px;font-weight:700;line-height:1.15;color:#F7F6F1">O cockpit funcionando</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:28px;width:560px">
+<div style="display:flex;gap:20px;align-items:start">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#E0A23B;width:44px;height:44px"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
+<p style="font-size:30px;line-height:1.35;width:490px">A IA escreve o briefing do dia</p>
+</div>
+<div style="display:flex;gap:20px;align-items:start">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#E0A23B;width:44px;height:44px"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+<p style="font-size:30px;line-height:1.35;width:490px">Indicadores de cada frente, com meta e status</p>
+</div>
+<div style="display:flex;gap:20px;align-items:start">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#E0A23B;width:44px;height:44px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+<p style="font-size:30px;line-height:1.35;width:490px">Eventos chegando em tempo real</p>
+</div>
+</div>
+<p style="font-size:30px;font-weight:700;color:#14213D;background:#E0A23B;padding:20px 32px;border-radius:12px;width:480px"><a href="cockpit/index.html">Abrir o cockpit completo →</a></p>
+<iframe style="border:0;background:transparent;position:absolute;left:760px;top:200px;width:1032px;height:600px" srcdoc="&lt;!doctype html&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;
+*{box-sizing:border-box;margin:0}
+body{font-family:&quot;Segoe UI&quot;,Arial,Helvetica,sans-serif;background:transparent;color:#212529}
+.win{width:1032px;height:600px;background:#F5F5F5;border-radius:18px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.45);display:flex;flex-direction:column}
+.stripe{height:10px;background:linear-gradient(90deg,#00A858 0 60%,#FFCC00 60% 80%,#006BB6 80% 100%)}
+.hd{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#fff;border-bottom:1px solid #E6E6E6}
+.hd b{font-size:30px;font-weight:800}
+.hd small{display:block;font-size:24px;color:#6C757D}
+.live{font-size:24px;color:#515151;display:flex;align-items:center;gap:10px}
+.dot{width:14px;height:14px;border-radius:50%;background:#0ca30c;animation:p 2s infinite}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(12,163,12,.6)}70%{box-shadow:0 0 0 12px rgba(12,163,12,0)}100%{box-shadow:0 0 0 0 rgba(12,163,12,0)}}
+.body{padding:20px 28px;display:flex;flex-direction:column;gap:16px;flex:1}
+.card{background:#fff;border:1px solid #E6E6E6;border-radius:14px;padding:16px 20px}
+.lab{font-size:24px;font-weight:700;letter-spacing:1px;color:#007A43;text-transform:uppercase}
+.brief p{font-size:26px;line-height:1.35;min-height:35px}
+.brief p b{color:#212529}
+.c::after{content:&quot;▍&quot;;color:#00A858;animation:k 1s steps(1) infinite}
+@keyframes k{50%{opacity:0}}
+.kpis{display:flex;gap:16px}
+.kpi{flex:1}
+.kpi .a{font-size:24px;color:#515151;font-weight:600}
+.kpi .v{font-size:46px;font-weight:800;line-height:1.1;margin:4px 0}
+.kpi .v small{font-size:24px;color:#515151;font-weight:600}
+.st{display:inline-flex;align-items:center;gap:8px;font-size:24px;font-weight:600}
+.st i{width:16px;height:16px;border-radius:50%;display:inline-block}
+.feed{display:flex;align-items:center;gap:14px;font-size:24px;color:#515151}
+.feed b{color:#212529}
+.feed span.t{font-variant-numeric:tabular-nums;color:#6C757D}
+.in{animation:s .5s ease-out}
+@keyframes s{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;div class=&quot;win&quot;&gt;
+&lt;div class=&quot;stripe&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;hd&quot;&gt;&lt;div&gt;&lt;b&gt;Cockpit de Gestão&lt;/b&gt;&lt;small&gt;Protótipo · dados ilustrativos&lt;/small&gt;&lt;/div&gt;&lt;div class=&quot;live&quot;&gt;&lt;span class=&quot;dot&quot;&gt;&lt;/span&gt;Ao vivo &lt;span id=&quot;clk&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;body&quot;&gt;
+&lt;div class=&quot;card brief&quot;&gt;&lt;div class=&quot;lab&quot;&gt;Briefing do dia · IA&lt;/div&gt;&lt;p id=&quot;l1&quot;&gt;&lt;/p&gt;&lt;p id=&quot;l2&quot;&gt;&lt;/p&gt;&lt;p id=&quot;l3&quot;&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;div class=&quot;kpis&quot;&gt;
+&lt;div class=&quot;card kpi&quot;&gt;&lt;div class=&quot;a&quot;&gt;Saúde · espera&lt;/div&gt;&lt;div class=&quot;v&quot;&gt;38&lt;small&gt; dias&lt;/small&gt;&lt;/div&gt;&lt;span class=&quot;st&quot;&gt;&lt;i style=&quot;background:#fab219&quot;&gt;&lt;/i&gt;Atenção&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;card kpi&quot;&gt;&lt;div class=&quot;a&quot;&gt;Segurança · resposta&lt;/div&gt;&lt;div class=&quot;v&quot;&gt;9,2&lt;small&gt; min&lt;/small&gt;&lt;/div&gt;&lt;span class=&quot;st&quot;&gt;&lt;i style=&quot;background:#0ca30c&quot;&gt;&lt;/i&gt;No prazo&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;card kpi&quot;&gt;&lt;div class=&quot;a&quot;&gt;Obras no prazo&lt;/div&gt;&lt;div class=&quot;v&quot;&gt;64&lt;small&gt;%&lt;/small&gt;&lt;/div&gt;&lt;span class=&quot;st&quot;&gt;&lt;i style=&quot;background:#d03b3b&quot;&gt;&lt;/i&gt;Risco&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;card feed&quot; id=&quot;feed&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;script&gt;
+var L=[[&quot;l1&quot;,&quot;&lt;b&gt;Mudou:&lt;/b&gt; espera na regulação caiu para 38 dias&quot;],[&quot;l2&quot;,&quot;&lt;b&gt;Em risco:&lt;/b&gt; 64% das obras no prazo (meta 85%)&quot;],[&quot;l3&quot;,&quot;&lt;b&gt;Decidir:&lt;/b&gt; remanejar equipes para 3 obras?&quot;]];
+var E=[[&quot;Saúde&quot;,&quot;fila de ortopedia caiu 6% na semana&quot;],[&quot;Segurança&quot;,&quot;ocorrência na EPTG normalizada&quot;],[&quot;Mobilidade&quot;,&quot;pontualidade voltou a 84%&quot;],[&quot;Obras&quot;,&quot;drenagem atingiu 80% de execução&quot;],[&quot;Atendimento&quot;,&quot;42 novas demandas em Samambaia&quot;]];
+function pad(n){return n&lt;10?&quot;0&quot;+n:n}
+function clk(){var d=new Date();document.getElementById(&quot;clk&quot;).textContent=pad(d.getHours())+&quot;:&quot;+pad(d.getMinutes())+&quot;:&quot;+pad(d.getSeconds())}
+clk();setInterval(clk,1000);
+function typeLine(i){if(i&gt;=L.length){setTimeout(function(){L.forEach(function(x){document.getElementById(x[0]).innerHTML=&quot;&quot;});typeLine(0)},6000);return}
+var el=document.getElementById(L[i][0]),plain=L[i][1].replace(/&lt;[^&gt;]+&gt;/g,&quot;&quot;),bold=L[i][1].match(/&lt;b&gt;(.*?)&lt;\/b&gt;/)[1],n=0;el.className=&quot;c&quot;;
+var t=setInterval(function(){n++;var s=plain.slice(0,n);el.innerHTML=s.length&lt;=bold.length?&quot;&lt;b&gt;&quot;+s+&quot;&lt;/b&gt;&quot;:&quot;&lt;b&gt;&quot;+bold+&quot;&lt;/b&gt;&quot;+s.slice(bold.length);
+if(n&gt;=plain.length){clearInterval(t);el.className=&quot;&quot;;setTimeout(function(){typeLine(i+1)},400)}},28)}
+typeLine(0);
+var ei=0;function feed(){var d=new Date(),e=E[ei++%E.length],f=document.getElementById(&quot;feed&quot;);
+f.innerHTML=&#x27;&lt;span class=&quot;t&quot;&gt;&#x27;+pad(d.getHours())+&quot;:&quot;+pad(d.getMinutes())+&#x27;&lt;/span&gt;&lt;span&gt;&lt;b&gt;&#x27;+e[0]+&quot;&lt;/b&gt; · &quot;+e[1]+&quot;&lt;/span&gt;&quot;;f.classList.remove(&quot;in&quot;);void f.offsetWidth;f.classList.add(&quot;in&quot;)}
+feed();setInterval(feed,3500);
+&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;"></iframe>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9AA6BA">Governo em tempo real · 5</p>
+
+</section>
+
+<section id="plano" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">Alinhado ao Plano de Governo 2027–2030</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D">O plano já pede. O cockpit entrega.</h2>
+</div>
+<table style="font-family:'Public Sans', Arial, sans-serif;font-size:26px;color:#3E4A5C;background:#FFFFFF;border:1px solid #E2DED3">
+<tr style="background:#14213D"><th style="width:52%;color:#F7F6F1">O plano prevê (Eixo 5)</th><th style="width:48%;color:#F7F6F1">Como o cockpit entrega</th></tr>
+<tr><td><i>Integrar sistemas, plataformas e bases de dados governamentais</i></td><td style="color:#14213D"><b>Conecta os sistemas existentes, sem substituí-los</b></td></tr>
+<tr style="background:#FBF8F1"><td><i>Dados, automação e IA na tomada de decisões, com supervisão humana</i></td><td style="color:#14213D"><b>Briefing diário com IA; a decisão continua com a governadora</b></td></tr>
+<tr><td><i>Indicadores de desempenho, monitoramento sistemático e gestão de riscos</i></td><td style="color:#14213D"><b>Indicadores em uma só visão, com alerta de risco</b></td></tr>
+<tr style="background:#FBF8F1"><td><i>Instrumentos de acompanhamento dos resultados governamentais</i></td><td style="color:#14213D"><b>Histórico de decisões e resultados sempre acessível</b></td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Fonte: Plano de Governo 2027–2030, Eixo 5 · 6</p>
+
+</section>
+
+<section id="consolida" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">Do papel ao resultado</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D">Coordenar as frentes do plano até o sucesso</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Saúde · IntegraSaúde</h3>
+<p style="font-size:28px;line-height:1.4">Filas, agendamentos e tempo de espera</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Segurança · CIOB e DF 360</h3>
+<p style="font-size:28px;line-height:1.4">Ocorrências e atuação integrada das forças</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Mobilidade</h3>
+<p style="font-size:28px;line-height:1.4">Monitoramento em tempo real do transporte</p>
+</div>
+</div>
+<div style="display:flex;gap:28px;background:#FFFFFF;padding:40px;border:1px solid #E2DED3;border-left:8px solid #8A5410;border-radius:12px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Regiões Administrativas</h3>
+<p style="font-size:28px;line-height:1.4">Demandas da população e entregas nos territórios</p>
+</div>
+</div>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#14213D"><b>Meu papel: implementar e coordenar essas frentes para que o plano saia do papel e seja um sucesso.</b></p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 7</p>
+
+</section>
+
+<section id="startup" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">Como fazer acontecer</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D;width:1500px">O jeito startup: resultado visível desde o início</h2>
+</div>
+<div style="display:flex;gap:0;flex:1;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:40px;border-top:8px solid #8A5410;background:#FFFFFF">
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A5410">Etapa 1</p>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Começar pequeno</h3>
+<p style="font-size:28px;line-height:1.4">2 ou 3 prioridades do plano, como as filas da saúde, em poucas semanas</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:40px;border-top:8px solid #B97A2E;background:#FBF8F1">
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A5410">Etapa 2</p>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Medir e ajustar</h3>
+<p style="font-size:28px;line-height:1.4">Validar com quem usa e corrigir rápido o que não funciona</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:40px;border-top:8px solid #E0A23B;background:#FFFFFF">
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A5410">Etapa 3</p>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Expandir</h3>
+<p style="font-size:28px;line-height:1.4">Levar a outras áreas conforme o valor aparece</p>
+</div>
+</div>
+<p style="font-size:32px;line-height:1.4;color:#14213D"><b>Nenhum projeto de anos antes do primeiro resultado.</b></p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 8</p>
+
+</section>
+
+<section id="quemsou" data-transition="fade" style="background:#14213D;color:#C9D1DE;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#E0A23B">Por que eu consigo entregar</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:72px;font-weight:700;line-height:1.15;color:#F7F6F1">Luiz Fernando Moreira</h2>
+<p style="font-size:34px;line-height:1.4;width:1500px">Mais de 20 anos construindo e modernizando sistemas críticos. Hoje lidero arquitetura, plataforma e a adoção de IA corporativa em empresa de tecnologia.</p>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #E0A23B;padding:32px 0 0 0">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:96px;font-weight:700;color:#E0A23B">20+</p>
+<p style="font-size:28px;line-height:1.3">anos em tecnologia</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #E0A23B;padding:32px 0 0 0">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:96px;font-weight:700;color:#E0A23B">US$ 1M</p>
+<p style="font-size:28px;line-height:1.3">economizados em um único projeto</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #E0A23B;padding:32px 0 0 0">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:96px;font-weight:700;color:#E0A23B">90%</p>
+<p style="font-size:28px;line-height:1.3">menos chamados em serviço crítico</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:2px solid #E0A23B;padding:32px 0 0 0">
+<p style="font-family:'Libre Baskerville', Georgia, serif;font-size:96px;font-weight:700;color:#E0A23B">100+</p>
+<p style="font-size:28px;line-height:1.3">decisões técnicas documentadas</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#9AA6BA">Governo em tempo real · 9</p>
+
+</section>
+
+<section id="prova" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">A prova</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D">Já fiz cada parte desse cockpit</h2>
+</div>
+<table style="font-family:'Public Sans', Arial, sans-serif;font-size:26px;color:#3E4A5C;background:#FFFFFF;border:1px solid #E2DED3">
+<tr style="background:#14213D"><th style="width:32%;color:#F7F6F1">O cockpit precisa de…</th><th style="width:68%;color:#F7F6F1">O que eu já entreguei</th></tr>
+<tr><td style="color:#14213D"><b>Integrar sem parar a operação</b></td><td>Modernização de sistemas legados em microsserviços, com substituição incremental sem impacto ao usuário</td></tr>
+<tr style="background:#FBF8F1"><td style="color:#14213D"><b>Inteligência artificial aplicada</b></td><td>Lidero a adoção de IA corporativa: boas práticas, controle de custo e ferramentas hoje padrão da empresa</td></tr>
+<tr><td style="color:#14213D"><b>Confiabilidade em serviço essencial</b></td><td>Alta disponibilidade para serviço crítico de vendas e entregas, com 90% menos paralisações</td></tr>
+<tr style="background:#FBF8F1"><td style="color:#14213D"><b>Transparência das decisões</b></td><td>Criei e mantenho a base de governança técnica da empresa, com mais de 100 decisões documentadas</td></tr>
+<tr><td style="color:#14213D"><b>Uso responsável do dinheiro</b></td><td>US$ 1 milhão economizados na troca de fornecedor, R$ 300 mil/ano de redução operacional, 20% menos gasto com nuvem</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 10</p>
+
+</section>
+
+<section id="publico" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">Experiência com o setor público</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D;width:1500px">Já entreguei sistema de atendimento e ouvidoria a órgão público</h2>
+</div>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFFFFF;padding:48px;border:1px solid #E2DED3;border-radius:16px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">ANTT e SEBRAE Nacional</h3>
+<p style="font-size:28px;line-height:1.4">Implantação de sistema de atendimento e ouvidoria em agência reguladora federal e em entidade de alcance nacional</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFFFFF;padding:48px;border:1px solid #E2DED3;border-radius:16px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Legado e grande escala</h3>
+<p style="font-size:28px;line-height:1.4">Conheço a realidade de integrar sistemas antigos e atender grandes bases de usuários</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFFFFF;padding:48px;border:1px solid #E2DED3;border-radius:16px">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8A5410;width:56px;height:56px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+<h3 style="font-size:36px;font-weight:700;color:#14213D">Entre áreas</h3>
+<p style="font-size:28px;line-height:1.4">Sei trabalhar entre áreas técnicas, gestores e quem usa o serviço na ponta</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 11</p>
+
+</section>
+
+<section id="comotrabalho" data-transition="fade" style="background:#F7F6F1;color:#3E4A5C;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#8A5410">Como trabalho</p>
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:64px;font-weight:700;line-height:1.15;color:#14213D">Quatro princípios que levo para qualquer missão</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;flex:1">
+<div style="display:flex;flex-direction:column;gap:12px;border-top:4px solid #8A5410;padding:32px 0 0 0">
+<h3 style="font-size:38px;font-weight:700;color:#14213D">Resultado primeiro</h3>
+<p style="font-size:28px;line-height:1.4">Entrego valor visível rápido e expando a partir dele</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-top:4px solid #8A5410;padding:32px 0 0 0">
+<h3 style="font-size:38px;font-weight:700;color:#14213D">Decisão documentada</h3>
+<p style="font-size:28px;line-height:1.4">Tudo registrado, com prós, contras e alternativas consideradas</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-top:4px solid #8A5410;padding:32px 0 0 0">
+<h3 style="font-size:38px;font-weight:700;color:#14213D">Custo sob controle</h3>
+<p style="font-size:28px;line-height:1.4">Previsibilidade de gasto antes de escalar qualquer iniciativa</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-top:4px solid #8A5410;padding:32px 0 0 0">
+<h3 style="font-size:38px;font-weight:700;color:#14213D">Pessoas junto</h3>
+<p style="font-size:28px;line-height:1.4">Formação de equipes e servidores em IA e transformação digital</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#6B7280">Governo em tempo real · 12</p>
+
+</section>
+
+<section id="fim" data-transition="fade" style="background:#14213D;color:#C9D1DE;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="position:absolute;left:0;top:0;width:24px;height:1080px;background:#E0A23B"></div>
+<p style="font-size:28px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#E0A23B">Encerramento</p>
+<div style="display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Libre Baskerville', Georgia, serif;font-size:80px;font-weight:700;line-height:1.15;color:#F7F6F1;width:1500px">Coloco essa experiência à disposição do GDF</h2>
+<p style="font-size:40px;line-height:1.4;width:1450px">Para implementar e coordenar os compromissos de governo inteligente do plano, tirando-os do papel com segurança, transparência e custo controlado.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-size:36px;font-weight:700;color:#F7F6F1">Luiz Fernando Moreira</p>
+<p style="font-size:28px">Cel. (61) 99992-1683 · linkedin.com/in/luizfqm</p>
+</div>
+
+</section>
+
+</div></div>
+<div id="rot" class="show"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M2 12a10 10 0 0 0 4 8"/><polyline points="2 17 6 20 9 17"/></svg><span>Gire o celular para ver a apresentação em tela cheia</span><button type="button">OK</button></div>
+<div id="hint" class="show">Deslize para o lado para passar os slides</div>
+<div id="bar"></div>
+<div id="notes"></div>
+<script>
+var S=[].slice.call(document.querySelectorAll("#stage>section")),N=["Abrir pela ideia, não pelo currículo. A pergunta que a apresentação responde: como a governadora pode saber, a tempo de agir, o que está acontecendo em todo o governo.", "Problema genérico de qualquer governo grande, sem apontar culpa de ninguém. Não é falta de dado, é dado espalhado e lido tarde demais.", "Este é o centro da apresentação. Ponto-chave: não exige que nenhuma secretaria troque de sistema. É a mesma técnica de integração incremental usada para modernizar sistemas legados sem interromper a operação.", "Traduzir em rotina: em vez de convocar reunião para saber o status, ela abre o briefing do dia. O alerta antecipado usa a mesma lógica de pontuação de risco que hoje prevê onde um sistema vai falhar antes de falhar.", "Este slide mostra uma prévia animada. Neste momento, abra o protótipo completo no navegador (link do ngrok ou o arquivo local) e deixe a governadora clicar em \"Aprovar\" numa decisão: ela vê a decisão entrar no histórico na hora. Dados ilustrativos.", "Mostrar que a proposta não é uma ideia de fora: é um jeito concreto de cumprir compromissos que o próprio plano já assumiu no Eixo 5 (Transformação Digital, Governo Inteligente e Inovação; Planejamento, Orçamento, Gestão e Governança).", "Estas são frentes que o próprio plano prevê. O ponto é mostrar capacidade de execução: integrar essas iniciativas, coordenar as equipes envolvidas e acompanhar cada uma até o resultado, com a governadora vendo o avanço no cockpit.", "A visão de startup aplicada ao governo não é jargão: é entregar em etapas curtas, medir e só escalar o que funciona. Reduz risco e mostra resultado cedo, o que importa num mandato.", "Transição: até aqui, a ideia. A partir daqui, por que eu sou a pessoa capaz de construí-la. Atuação em varejo nacional, indústria, pesquisa aplicada e setor público.", "Este é o slide-ponte: cada peça da proposta já foi feita por mim em outro contexto. Tira a ideia do campo da teoria.", "Único vínculo direto com o setor público: merece destaque. Ouvidoria e atendimento ao cidadão são exatamente o tipo de informação que alimentaria o cockpit.", "Fechar a parte do \"por que eu\" com o jeito de trabalhar: rapidez com responsabilidade e transparência.", "Não comprometer com cargo específico. Deixar claro o problema que você resolveria e sua disponibilidade."],i=0,stage=document.getElementById("stage");
+var view=document.getElementById("view");
+function fit(){var w=view.clientWidth,h=view.clientHeight,k=Math.min(w/1920,h/1080);
+stage.style.transform="translate("+((w-1920*k)/2)+"px,"+((h-1080*k)/2)+"px) scale("+k+")"}
+document.querySelector("#rot button").addEventListener("click",function(e){e.stopPropagation();document.getElementById("rot").classList.remove("show")});
+setTimeout(function(){document.getElementById("hint").classList.remove("show")},6000);
+function go(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach(function(s,j){s.classList.toggle("on",j===i)});
+document.getElementById("bar").style.width=((i+1)/S.length*100)+"%";document.getElementById("notes").textContent=N[i];
+if(location.hash!=="#"+(i+1))history.replaceState(null,"","#"+(i+1))}
+addEventListener("resize",fit);fit();
+go((parseInt(location.hash.slice(1),10)||1)-1);
+addEventListener("hashchange",function(){go((parseInt(location.hash.slice(1),10)||1)-1)});
+addEventListener("keydown",function(e){var k=e.key;
+if(k==="ArrowRight"||k==="PageDown"||k===" "||k==="ArrowDown"){e.preventDefault();go(i+1)}
+else if(k==="ArrowLeft"||k==="PageUp"||k==="ArrowUp"){e.preventDefault();go(i-1)}
+else if(k==="Home")go(0);else if(k==="End")go(S.length-1);
+else if(k==="f"||k==="F"){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+else if(k==="n"||k==="N")document.getElementById("notes").classList.toggle("on")});
+addEventListener("click",function(e){if(e.target.closest("a,iframe,#notes,#rot"))return;go(e.clientX>innerWidth/3?i+1:i-1)});
+var tx=null;addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});
+addEventListener("touchend",function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)go(d<0?i+1:i-1);tx=null});
+</script>
+</body></html>
